@@ -15,3 +15,5 @@ venv/
 Thumba.db
 .vscode/
 .idea/
+
+AGENTS.md
