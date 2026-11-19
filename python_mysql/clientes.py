@@ -2,16 +2,12 @@
 # -----------------------------------------------------------------------------
 # Capa de "operaciones de negocio" sobre la tabla "usuarios".
 # Define la clase CClientes con las 4 operaciones básicas CRUD:
-#   C = Create (crear)      -> ingresarClientes()
-#   R = Read   (leer)       -> mostrarClientes()
-#   U = Update (actualizar) -> modificarClientes()
-#   D = Delete (eliminar)   -> eliminarClientes()
+#   C = Create (crear)      ingresarClientes()
+#   R = Read   (leer)       mostrarClientes()
+#   U = Update (actualizar) modificarClientes()
+#   D = Delete (eliminar)   eliminarClientes()
 
-#    BUG #3 CORREGIDO:
-#    Antes este archivo usaba mysql.connector sin importarlo y "funcionaba por
-#    casualidad" porque connection.py lo importaba antes (y "from connection
-#    import *" arrastraba la variable). Ahora cada archivo declara sus propias
-#    dependencias, que es la forma correcta y no rompe si cambia connection.py.
+# Este archivo importa mysql.connector directamente para usar sus excepciones.
 # -----------------------------------------------------------------------------
 import mysql.connector
 from connection import *
@@ -28,11 +24,8 @@ class CClientes:
         try:
             # 1) Pedimos una conexión nueva a la BD.
             cone = CConnection.connectionBaseDeDatos()
-            # 2) PROTECCIÓN (relacionada con el bug #2): si no hay MySQL, la
-            #    conexión vale None y la siguiente línea (cone.cursor()) haría
-            #    reventar el programa. Antes solo se mostraba el error en
-            #    consola y el programa seguía y explotaba. Ahora cancelamos la
-            #    operación con un aviso claro.
+            # 2) Si no hay conexión, salimos antes de llamar a cursor().
+            #    Así la interfaz recibe una lista vacía y sigue funcionando.
             if cone is None:
                 print("No se pudo conectar a la base de datos. Operación cancelada.")
                 return []
@@ -62,7 +55,7 @@ class CClientes:
         cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
-            # PROTECCIÓN: mismas explicación que en mostrarClientes().
+            # Si no hay conexión, salimos como en mostrarClientes().
             # Con None en "cone", la app se detiene aquí sin reventar.
             if cone is None:
                 print("No se pudo conectar a la base de datos. Operación cancelada.")
@@ -101,12 +94,12 @@ class CClientes:
         cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
-            # PROTECCIÓN: mismas explicación que en mostrarClientes().
+            # Si no hay conexión, salimos como en mostrarClientes().
             if cone is None:
                 print("No se pudo conectar a la base de datos. Operación cancelada.")
                 return
             cursor = cone.cursor()
-            # 1) UPDATE ... SET ... WHERE ...  -> cambia SOLO la fila cuyo id coincida.
+            # 1) UPDATE ... SET ... WHERE ... cambia solo la fila cuyo id coincida.
             #    Se usa "usuarios.id" para despejar a qué tabla/columna nos referimos.
             sql = "update usuarios set usuarios.nombres = %s, usuarios.apellidos = %s, usuarios.sexo = %s, usuarios.telefono = %s where usuarios.id = %s;"
             # 2) El orden de la tupla debe coincidir con el orden de los %s:
@@ -127,7 +120,7 @@ class CClientes:
         cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
-            # PROTECCIÓN: mismas explicación que en mostrarClientes().
+            # Si no hay conexión, salimos como en mostrarClientes().
             if cone is None:
                 print("No se pudo conectar a la base de datos. Operación cancelada.")
                 return

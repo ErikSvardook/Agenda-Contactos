@@ -5,7 +5,7 @@
 #   1) Construir la interfaz gráfica (Tkinter) del formulario.
 #   2) Conectar los botones de la interfaz con las funciones CRUD de CClientes.
 #   3) Mantener actualizada la tabla (Treeview) con los datos de MySQL.
-# Flujo: Interfaz (aquí) -> clientes.py (CRUD) -> connection.py (MySQL).
+# Flujo: la interfaz llama a clientes.py y este usa connection.py para MySQL.
 # -----------------------------------------------------------------------------
 
 import tkinter as tk
@@ -244,9 +244,8 @@ def formulario():
 
         #Elementos del gruopBox de la izquierda
         # Label = texto fijo ("Id"); width=13 le da un ancho uniforme a los rótulos.
-        # UG #4 CORREGIDO: antes se escribió font=("arial,12") con la coma
-        #    DENTRO del texto; eso era un texto y no una tupla, así que Tkinter
-        #    ignoraba la fuente. La forma correcta es ("arial", 12) en dos valores.
+        # La fuente se escribe como dos valores, ("arial", 12), para que
+        # Tkinter la reconozca como una tupla.
         labelId = Label(groupBox, text="Id", width=13,font=("arial", 12)).grid(row=0,column=0)
         # Entry = cuadro de texto de una sola línea. Aquí se guardará el id.
         textBoxId = Entry(groupBox, state="readonly", readonlybackground="#f0f0f0",)
@@ -325,8 +324,6 @@ def formulario():
         print("Error al mostrar la interfaz, error: {}".format(error))
 
 if __name__ == "__main__":
-    # MEJORA APLICADA: este bloque PROTEGE la entrada principal.
-    # "formulario()" solo se ejecuta cuando corremos ESTE archivo directamente
-    # (python python_mysql.py). Si otro archivo hace "from python_mysql import *",
-    # la ventana NO se abre sola. Antes la llamada estaba suelta en el módulo.
+    # formulario() se ejecuta solo al correr este archivo directamente.
+    # Si se importa desde otro módulo, la ventana no se abre.
     formulario()

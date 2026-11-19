@@ -6,8 +6,7 @@
 # -----------------------------------------------------------------------------
 import os
 import mysql.connector
-from dotenv import load_dotenv #Busca el archivo .env (desde donde ejecutes el programa)
-                                #y carga cada CLAVE=VALOR como variable de entorno en os.environ
+from dotenv import load_dotenv  # Lee el .env y carga sus valores en os.environ
 # Importamos la librería "mysql-connector-python".
 # Esta librería es el puente entre Python y MySQL: permite abrir conexiones,
 # crear cursores y ejecutar sentencias SQL desde código Python.
@@ -29,11 +28,11 @@ class CConnection:
         try:
             # 1) Intentar conectarnos a MySQL con los datos de acceso.
             #    Parámetros de mysql.connector.connect:
-            #      user      -> usuario de MySQL (normalmente "root")
-            #      password  -> contraseña del usuario erik123
-            #      host      -> "127.0.0.1" = localhost (la máquina local)
-            #      database  -> nombre de la BD a la que entramos ("clientesdb")
-            #      port      -> puerto por defecto de MySQL (3306)
+            #      user      usuario de MySQL, por defecto "root"
+            #      password  la contraseña leída del .env
+            #      host      "127.0.0.1" es la máquina local
+            #      database  nombre de la BD, por defecto "clientesdb"
+            #      port      puerto de MySQL, por defecto 3306
 
             #os.environ.get("CLAVE", "valor por defecto") lee la variable
             #Si no existe, usa el valor por defecto en lugar de fallar
@@ -45,19 +44,9 @@ class CConnection:
             # 2) Si algo falla (BD caída, contraseña mala, puerto equivocado...),
             #    capturamos el error de MySQL y lo mostramos en consola.
 
-            #    BUG #2 CORREGIDO:
-            #    Antes esta línea era "return conexion", pero si la conexión
-            #    FALLÓ la variable "conexion" nunca se creó y Python lanzaba un
-            #    segundo error (UnboundLocalError). Ahora devolvemos "None":
-            #    significa "no hay conexión" y los métodos de clientes.py ya
-            #    saben cómo detectarlo antes de seguir trabajando.
+            # Devolvemos None para indicar que no hay conexión.
+            # clientes.py comprueba este valor antes de usar el cursor.
             print("Error al conectarte a la base de datos: {}".format(error))
             return None
 
-#    NOTA SOBRE BUG #1 (YA CORREGIDO):
-#    Antes existía aquí una línea suelta que ejecutaba connectionBaseDeDatos()
-#    en el momento de importar el módulo (porque "from connection import *"
-#    ejecuta todo el archivo). Eso abría una conexión "fantasma" que nunca se
-#    guardaba ni se cerraba y, si MySQL no estaba disponible, rompía toda la
-#    aplicación al arrancar. Se eliminó: ahora la conexión solo se abre cuando
-#    un método la pide (bajo demanda).
+# La conexión se abre solo cuando un método la pide, no al importar el módulo.
